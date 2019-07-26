@@ -1,0 +1,428 @@
+import sys
+import os
+import numpy as np
+from scipy import stats
+from scipy.interpolate import interp1d
+from rk4 import rk4
+from MODELNAME_LPN import *
+import matplotlib.pyplot as plt
+
+CYCLES = <params,0>
+TIMESTEPS = <params,1>
+
+START_TIME = CYCLES*TIMESTEPS - TIMESTEPS
+END_TIME = CYCLES*TIMESTEPS + 1
+
+NUM_STRIPS = <params,2>
+NUM_BRANCHES = <params,3>
+
+# main function
+if __name__ == "__main__":
+	
+	##############################
+	#  Pre-processing
+	##############################
+	
+	print('Pre-processing')
+	# Get Uncertain/Stochastic Parameter Vector
+	UP = <params,4>
+
+	# Get Deterministic Parameter Vector
+	DP = getDPVec(UP)
+	
+
+	##############################
+	#  Solve Step
+	##############################
+	
+	print('Solving')
+	# Get LPN solution
+	t,output_QI = LPNSolve(DP,UP,CYCLES,TIMESTEPS)
+
+	
+	##############################
+	#  Post-processing
+	##############################
+
+	print('Post-processing')
+	outputVec = []
+
+	######################
+	# FLOWS     
+	######################
+
+	print('Flows')
+	# Extract flow quantities of interest
+	outputVec.append(np.mean(output_QI[11][START_TIME:END_TIME]))
+	outputVec.append(np.mean(output_QI[6][START_TIME:END_TIME]))
+	outputVec.append(np.mean(output_QI[5][START_TIME:END_TIME])) 
+	outputVec.append(np.mean(output_QI[12][START_TIME:END_TIME])) 
+	outputVec.append(np.mean(output_QI[8][START_TIME:END_TIME])) 
+	outputVec.append(np.mean(output_QI[9][START_TIME:END_TIME]))
+	outputVec.append(np.mean(output_QI[14][START_TIME:END_TIME])) 
+	outputVec.append(np.mean(output_QI[15][START_TIME:END_TIME]))
+	outputVec.append(np.mean(output_QI[7][START_TIME:END_TIME]))
+
+
+	######################
+	# PRESSURES      
+	######################
+
+	print('Pressures')	  	
+	# Extract pressure quantities of interest
+	amplitudes = []
+
+	outputVec.append(np.mean(output_QI[16][START_TIME:END_TIME])/1333.2239)
+	tmp_amp_press = np.max(output_QI[16][START_TIME:END_TIME]) - np.min(output_QI[16][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[28][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[28][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[28][START_TIME:END_TIME]) - np.min(output_QI[28][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[23][START_TIME:END_TIME])/1333.2239) 
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[23][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[23][START_TIME:END_TIME]) - np.min(output_QI[23][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[22][START_TIME:END_TIME])/1333.2239) 
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[22][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[22][START_TIME:END_TIME]) - np.min(output_QI[22][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[29][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[29][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[29][START_TIME:END_TIME]) - np.min(output_QI[29][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[25][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[25][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[25][START_TIME:END_TIME]) - np.min(output_QI[25][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[26][START_TIME:END_TIME])/1333.2239) 
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[26][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[26][START_TIME:END_TIME]) - np.min(output_QI[26][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[31][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[31][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[31][START_TIME:END_TIME]) - np.min(output_QI[31][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[32][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[32][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[32][START_TIME:END_TIME]) - np.min(output_QI[32][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+
+	outputVec.append(np.mean(output_QI[24][START_TIME:END_TIME])/1333.2239)
+	tmp_drop_press = np.subtract(output_QI[16][START_TIME:END_TIME], output_QI[24][START_TIME:END_TIME])
+	outputVec.append(np.mean(tmp_drop_press)/1333.2239)
+	tmp_amp_press = np.max(output_QI[24][START_TIME:END_TIME]) - np.min(output_QI[24][START_TIME:END_TIME])
+	amplitudes.append(tmp_amp_press/1333.2239)
+	
+	# Save pressure amplitude quantities of interest
+	for amp in amplitudes:
+  		outputVec.append(amp)
+
+
+	######################
+	# TAWSS and TABP      
+	######################
+
+	print('TAWSS and TABP')
+	# Calculate WSS values along vasculature
+	# Use WSS = 4*nu*v/(pi*(r**3))
+	thresholds = <params,36>
+
+	# Lengths in model
+	lA   = [1.1, 1.1, 1.1, 1.1]
+	lCB  = [1.1]  
+	lCT  = [1.1, 1.1] 
+	lLII = [1.1]  
+	lLR  = [1.1] 
+	lRR  = [1.1] 
+	lRI  = [1.1, 1.1] 
+	lRII = [1.1]  
+	lS   = [1.1]  
+	lLI  = [1.1, 1.1]  
+	lSr0 = [1.1] 
+	lSr1 = [1.1]  
+	lSr2 = [1.1]  
+	lSr3 = [1.1]  
+	lSr4 = [1.1]   
+	lengths = [lA,lCT,lCB,lS,lRR,lLR,lRI,lRII,lLI,lLII,lSr0,lSr1,lSr2,lSr3,lSr4]
+
+	# Average areas in model
+	AA   = [0.6, 0.6, 0.6, 0.6] 
+	ACB  = [0.6]  
+	ACT  = [0.6, 0.6]  
+	ALII = [0.6]  
+	ALR  = [0.6] 
+	ARR  = [0.6] 
+	ARI  = [0.6, 0.6] 
+	ARII = [0.6] 
+	AS   = [0.6] 
+	ALI  = [0.6, 0.6] 
+	ASr0 = [0.6] 
+	ASr1 = [0.6] 
+	ASr2 = [0.6] 
+	ASr3 = [0.6]
+	ASr4 = [0.6]  
+	areas = [AA,ACT,ACB,AS,ARR,ALR,ARI,ARII,ALI,ALII,ASr0,ASr1,ASr2,ASr3,ASr4]
+
+	# Flows
+	fA   = [output_QI[0][START_TIME:END_TIME],output_QI[1][START_TIME:END_TIME], \
+			output_QI[2][START_TIME:END_TIME],output_QI[3][START_TIME:END_TIME]] 
+	fCB  = [output_QI[6][START_TIME:END_TIME]] 
+	fCT  = [output_QI[4][START_TIME:END_TIME],output_QI[5][START_TIME:END_TIME]] 
+	fLII = [output_QI[12][START_TIME:END_TIME]] 
+	fLR  = [output_QI[8][START_TIME:END_TIME]] 
+	fRR  = [output_QI[9][START_TIME:END_TIME]] 
+	fRI  = [output_QI[13][START_TIME:END_TIME],output_QI[14][START_TIME:END_TIME]] 
+	fRII = [output_QI[15][START_TIME:END_TIME]] 
+	fS   = [output_QI[7][START_TIME:END_TIME]] 
+	fLI  = [output_QI[10][START_TIME:END_TIME],output_QI[11][START_TIME:END_TIME]] 
+	fSr0 = [output_QI[0][START_TIME:END_TIME]] 
+	fSr1 = [output_QI[3][START_TIME:END_TIME]] 
+	fSr2 = [output_QI[3][START_TIME:END_TIME]] 
+	fSr3 = [output_QI[13][START_TIME:END_TIME]] 
+	fSr4 = [output_QI[10][START_TIME:END_TIME]] 
+	flows = [fA,fCT,fCB,fS,fRR,fLR,fRI,fRII,fLI,fLII,fSr0,fSr1,fSr2,fSr3,fSr4]
+
+	# Pressures
+	pA   = [output_QI[17][START_TIME:END_TIME],output_QI[18][START_TIME:END_TIME], \
+			output_QI[19][START_TIME:END_TIME],output_QI[20][START_TIME:END_TIME]] 
+	pCB  = [output_QI[23][START_TIME:END_TIME]] 
+	pCT  = [output_QI[21][START_TIME:END_TIME],output_QI[22][START_TIME:END_TIME]] 
+	pLII = [output_QI[29][START_TIME:END_TIME]] 
+	pLR  = [output_QI[25][START_TIME:END_TIME]] 
+	pRR  = [output_QI[26][START_TIME:END_TIME]] 
+	pRI  = [output_QI[30][START_TIME:END_TIME],output_QI[31][START_TIME:END_TIME]] 
+	pRII = [output_QI[32][START_TIME:END_TIME]] 
+	pS   = [output_QI[24][START_TIME:END_TIME]] 
+	pLI  = [output_QI[27][START_TIME:END_TIME],output_QI[28][START_TIME:END_TIME]] 
+	pSr0 = [output_QI[17][START_TIME:END_TIME]] 
+	pSr1 = [output_QI[19][START_TIME:END_TIME]] 
+	pSr2 = [output_QI[20][START_TIME:END_TIME]] 
+	pSr3 = [output_QI[30][START_TIME:END_TIME]] 
+	pSr4 = [output_QI[27][START_TIME:END_TIME]] 
+	pressures = [pA,pCT,pCB,pS,pRR,pLR,pRI,pRII,pLI,pLII,pSr0,pSr1,pSr2,pSr3,pSr4]
+
+	
+	print('Model and branches')
+	# Now, get TABP and TAWSS quantities across entire model
+	modelLowTAWSS = np.zeros(len(thresholds))
+
+	modelMaxTABP = -sys.float_info.max
+	modelMinTABP = sys.float_info.max
+	modelMeanTABP = 0.0
+
+	branchesMaxTABP = [-sys.float_info.max for i in xrange(0,NUM_BRANCHES)]
+	branchesMinTABP = [sys.float_info.max for i in xrange(0,NUM_BRANCHES)]
+	branchesMeanTABP = [0.0 for i in xrange(0,NUM_BRANCHES)]
+
+	stripsMaxTABP = [-sys.float_info.max for i in xrange(0,NUM_STRIPS)]
+	stripsMinTABP = [sys.float_info.max for i in xrange(0,NUM_STRIPS)]
+	stripsMeanTABP = [0.0 for i in xrange(0,NUM_STRIPS)]
+
+	modelMaxTAWSS = -sys.float_info.max
+	modelMinTAWSS = sys.float_info.max
+	modelMeanTAWSS = 0.0
+
+	branchesMaxTAWSS = [-sys.float_info.max for i in xrange(0,NUM_BRANCHES)]
+	branchesMinTAWSS = [sys.float_info.max for i in xrange(0,NUM_BRANCHES)]
+	branchesMeanTAWSS = [0.0 for i in xrange(0,NUM_BRANCHES)]
+
+	stripsMaxTAWSS = [-sys.float_info.max for i in xrange(0,NUM_STRIPS)]
+	stripsMinTAWSS = [sys.float_info.max for i in xrange(0,NUM_STRIPS)]
+	stripsMeanTAWSS = [0.0 for i in xrange(0,NUM_STRIPS)]
+
+	modelTotalArea = 0.0
+	branchesTotalArea = [0.0 for i in xrange(0,NUM_BRANCHES)]
+	stripsTotalArea = [0.0 for i in xrange(0,NUM_STRIPS)]
+
+
+	# Loop over all the results for MODEL and BRANCH QoIs
+	for i_branch in xrange(0,NUM_BRANCHES):
+
+		# Loop over all segments in branches
+		for i_num in xrange(len(areas[i_branch])):
+
+			# get geometry 
+			l = lengths[i_branch][i_num]
+			area = areas[i_branch][i_num]
+
+			currSurfaceArea = l * 2 * np.pi * np.sqrt(area/np.pi) 
+
+			# Update total surface area
+			modelTotalArea = modelTotalArea + currSurfaceArea
+			branchesTotalArea[i_branch] = branchesTotalArea[i_branch] + currSurfaceArea
+
+			# Get current flows and pressures
+			currFlow = flows[i_branch][i_num]
+			currSegmentTAWSS = calcWSS(area,currFlow,UP)
+			currSegmentTABP = pressures[i_branch][i_num]
+
+			# Time average these values
+			currSegmentTAWSS = np.mean(currSegmentTAWSS)
+			currSegmentTABP = np.mean(currSegmentTABP)
+
+			# Update MODEL mean TABP and TAWSS and thresholded TAWSS
+			modelMeanTABP = modelMeanTABP + currSegmentTABP*currSurfaceArea
+			modelMeanTAWSS = modelMeanTAWSS + currSegmentTAWSS*currSurfaceArea
+
+			# update area of low TAWSS regions
+			for i_th in xrange(0,len(thresholds)):
+				if currSegmentTAWSS < float(thresholds[i_th]):
+  					modelLowTAWSS[i_th] = modelLowTAWSS[i_th] + currSurfaceArea
+
+			# Update MODEL min/max TABP and TAWSS 
+			# Store if needed
+			if(currSegmentTABP > modelMaxTABP):
+				modelMaxTABP = currSegmentTABP
+			if(currSegmentTABP < modelMinTABP):
+				modelMinTABP = currSegmentTABP
+
+			# Store if needed
+			if(currSegmentTAWSS > modelMaxTAWSS):
+				modelMaxTAWSS = currSegmentTAWSS
+			if(currSegmentTAWSS < modelMinTAWSS):
+				modelMinTAWSS = currSegmentTAWSS
+
+
+			# Update BRANCH mean TABP and TAWSS and thresholded TAWSS
+			branchesMeanTABP[i_branch] = branchesMeanTABP[i_branch] + currSegmentTABP*currSurfaceArea
+			branchesMeanTAWSS[i_branch] = branchesMeanTAWSS[i_branch] + currSegmentTAWSS*currSurfaceArea
+
+			# Update BRANCH min/max TABP and TAWSS
+			# Store if needed
+			if(currSegmentTABP > branchesMaxTABP[i_branch]):
+				branchesMaxTABP[i_branch] = currSegmentTABP
+			if(currSegmentTABP < branchesMinTABP[i_branch]):
+				branchesMinTABP[i_branch] = currSegmentTABP
+
+			# Store if needed
+			if(currSegmentTAWSS > branchesMaxTAWSS[i_branch]):
+				branchesMaxTAWSS[i_branch] = currSegmentTAWSS
+			if(currSegmentTAWSS < branchesMinTAWSS[i_branch]):
+				branchesMinTAWSS[i_branch] = currSegmentTAWSS
+
+
+	# spatially average MODEL mean TABP and TAWSS
+	modelMeanTABP = modelMeanTABP / modelTotalArea
+	modelMeanTAWSS = modelMeanTAWSS / modelTotalArea
+
+	# spatially average BRANCHES mean TABP and TAWSS
+	branchesMeanTABP = [bp / a for bp,a in zip(branchesMeanTABP, branchesTotalArea)]
+
+	branchesTotalArea[8] = branchesTotalArea[8] + branchesTotalArea[0]
+	branchesMeanTAWSS = [wss / a for wss,a in zip(branchesMeanTAWSS, branchesTotalArea)]
+
+	# if(threshold_check):
+	# make lowWSS a percentage of total area
+	modelLowTAWSS = [l / modelTotalArea for l in modelLowTAWSS]
+
+
+	print('Strips')
+	# Loop over all the result files for STRIP QoIs
+	for i_strip in xrange(0,NUM_STRIPS):
+
+		# Loop over all segments in strips
+		for i_num in xrange(len(areas[NUM_BRANCHES+i_strip])):
+
+			# get geometry 
+			l = lengths[NUM_BRANCHES+i_strip][i_num]
+			area = areas[NUM_BRANCHES+i_strip][i_num]
+
+			currSurfaceArea = l * 2 * np.pi * np.sqrt(area/np.pi) 
+
+			# Update total surface area
+			stripsTotalArea[i_strip] = stripsTotalArea[i_strip] + currSurfaceArea
+
+			# Get current flows and pressures
+			currFlow = flows[NUM_BRANCHES+i_strip][i_num]
+			currSegmentTAWSS = calcWSS(area,currFlow,UP)
+			currSegmentTABP = pressures[NUM_BRANCHES+i_strip][i_num]
+
+			# Time average these values
+			currSegmentTAWSS = np.mean(currSegmentTAWSS)
+			currSegmentTABP = np.mean(currSegmentTABP)
+
+			# Update STRIP mean TABP and TAWSS 
+			stripsMeanTABP[i_strip] = stripsMeanTABP[i_strip] + currSegmentTABP*currSurfaceArea
+			stripsMeanTAWSS[i_strip] = stripsMeanTAWSS[i_strip] + currSegmentTAWSS*currSurfaceArea
+
+			# Update STRIP min/max TABP and TAWSS
+			# Store if needed
+			if(currSegmentTABP > stripsMaxTABP[i_strip]):
+				stripsMaxTABP[i_strip] = currSegmentTABP
+			if(currSegmentTABP < stripsMinTABP[i_strip]):
+				stripsMinTABP[i_strip] = currSegmentTABP
+
+			# Store if needed
+			if(currSegmentTAWSS > stripsMaxTAWSS[i_strip]):
+				stripsMaxTAWSS[i_strip] = currSegmentTAWSS
+			if(currSegmentTAWSS < stripsMinTAWSS[i_strip]):
+				stripsMinTAWSS[i_strip] = currSegmentTAWSS
+
+	# spatially average STRIPS mean TABP and TAWSS
+	stripsMeanTABP = [bp / a for bp,a in zip(stripsMeanTABP, stripsTotalArea)]
+	stripsMeanTAWSS = [wss / a for wss,a in zip(stripsMeanTAWSS, stripsTotalArea)]
+
+	# Save all in the outputVec
+
+	# TABP results first: branches, model, strips (in order: mean, min, max)
+	for i_branch in xrange(0,NUM_BRANCHES):
+		outputVec.append(branchesMeanTABP[i_branch]/1333.2933)
+		outputVec.append(branchesMinTABP[i_branch]/1333.2933)
+		outputVec.append(branchesMaxTABP[i_branch]/1333.2933)
+
+	outputVec.append(modelMeanTABP/1333.2933)
+	outputVec.append(modelMinTABP/1333.2933)
+	outputVec.append(modelMaxTABP/1333.2933)
+
+	for i_strip in xrange(0,NUM_STRIPS):
+		outputVec.append(stripsMeanTABP[i_strip]/1333.2933)
+		outputVec.append(stripsMinTABP[i_strip]/1333.2933)
+		outputVec.append(stripsMaxTABP[i_strip]/1333.2933)
+
+	# TAWSS results second: branches, model, strips (in order: mean, min, max, thresholds (when applicable))
+	for i_branch in xrange(0,NUM_BRANCHES):
+		outputVec.append(branchesMeanTAWSS[i_branch])
+		outputVec.append(branchesMinTAWSS[i_branch])
+		outputVec.append(branchesMaxTAWSS[i_branch])
+
+	outputVec.append(modelMeanTAWSS)
+	outputVec.append(modelMinTAWSS)
+	outputVec.append(modelMaxTAWSS)
+
+	for i_wss in xrange(0,len(modelLowTAWSS)):
+		outputVec.append(modelLowTAWSS[i_wss])
+
+	for i_strip in xrange(0,NUM_STRIPS):
+		outputVec.append(stripsMeanTAWSS[i_strip])
+		outputVec.append(stripsMinTAWSS[i_strip])
+		outputVec.append(stripsMaxTAWSS[i_strip])
+
+	print('Done Post-processing')
+
+	
+	# Save results
+	os.chdir('../Outputs/')
+	np.savetxt('0DOutputVector.dat',outputVec,delimiter=',',fmt='%s')
+
+	# Return to root directory
+	os.chdir('../')
+
+	print('Completed!')
+

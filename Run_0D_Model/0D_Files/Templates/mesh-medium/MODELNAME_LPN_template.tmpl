@@ -1,0 +1,360 @@
+# Numerical solution to Lumped Parameter Network
+
+import sys
+import numpy as np
+from scipy.interpolate import interp1d
+from rk4 import rk4
+
+def LPNSolve(P,QI,STEPSIZE,cycles,nsteps):
+
+  # Get equation for input blood flow
+  flow = np.loadtxt('0DInflow.flow',delimiter=',')
+  # length of cardiac cycle
+  Tc = flow[0,-1]
+
+  # Solve the LPN ODEs numerically
+  # output quantities of interest vector
+  output_QI = [[] for i in range(0,<params,0>)]
+  output_t = []
+
+  # inital condition vector for state variables
+  S0 = np.zeros(<params,1>)
+
+  # Analysis over 'cycle' number of cardiac cycles
+  for n in range(0,cycles):
+    
+    # initial time
+    t0 = <params,2>
+    # step size
+    h = Tc/nsteps
+
+
+    # additional parameters for dPNum differential equation
+    params = [P,QI,flow] 
+    
+    # Call RK4 Solver - returns fn values and time steps
+    SNum,tNum = rk4(dSdt,t0,h,nsteps,S0,params)
+    
+    # update inital conditions
+    S0 = [s for s in SNum[-1]]
+    
+    
+    # Save values of quantities of interest
+    Q_in = []
+    for loopA in range(0,len(tNum)):
+      Q_in.append(Q(tNum[loopA],flow))
+    output_QI[0].append([s[4]*QI[0]+s[36] for s in SNum]) 
+    output_QI[1].append([s[5]*QI[1]+s[37] for s in SNum]) 
+    output_QI[2].append([s[8]*QI[2]+s[40] for s in SNum]) 
+    output_QI[3].append([s[7]*QI[3]+s[39] for s in SNum]) 
+    output_QI[4].append([s[6]*QI[4]+s[38] for s in SNum]) 
+    output_QI[5].append([s[3]*QI[5]+s[35] for s in SNum]) 
+    output_QI[6].append([s[1]*QI[6]+s[33] for s in SNum]) 
+    output_QI[7].append([s[2]*QI[7]+s[34] for s in SNum]) 
+    output_QI[8].append([s[0]*QI[8]+s[32] for s in SNum]) 
+    output_QI[9].append([s[4] for s in SNum]) 
+    output_QI[10].append([s[5] for s in SNum]) 
+    output_QI[11].append([s[8] for s in SNum]) 
+    output_QI[12].append([s[7] for s in SNum]) 
+    output_QI[13].append([s[6] for s in SNum]) 
+    output_QI[14].append([s[3] for s in SNum]) 
+    output_QI[15].append([s[1] for s in SNum]) 
+    output_QI[16].append([s[2] for s in SNum]) 
+    output_QI[17].append([s[0] for s in SNum]) 
+    output_QI[18].append([(s[9]+s[20]/P[3]+s[19]/P[12])*(1/(1/P[3]+1/P[12])) for s in SNum]) 
+    output_QI[19].append([(s[10]+s[23]/P[15]+s[18]/P[18])*(1/(1/P[15]+1/P[18])) for s in SNum]) 
+    output_QI[20].append([(s[11]+s[25]/P[24]+s[24]/P[21])*(1/(1/P[24]+1/P[21])) for s in SNum]) 
+    output_QI[21].append([(s[12]+s[26]/P[30]+s[29]/P[39])*(1/(1/P[30]+1/P[39])) for s in SNum]) 
+    output_QI[22].append([(s[14]+s[27]/P[33]+s[28]/P[36])*(1/(1/P[33]+1/P[36])) for s in SNum]) 
+    output_QI[23].append([(s[15]+s[30]/P[42]+s[31]/P[45])*(1/(1/P[42]+1/P[45])) for s in SNum]) 
+    output_QI[24].append([(s[13]+s[21]/P[9]+s[22]/P[6])*(1/(1/P[9]+1/P[6])) for s in SNum]) 
+    output_QI[25].append([q*P[0] + s[16] for q,s in zip(Q_in,SNum)]) 
+    output_QI[26].append([(q-s[19])/P[12] for q,s in zip(output_QI[18][n],SNum)]) 
+    output_QI[27].append([(q-s[18])/P[18] for q,s in zip(output_QI[19][n],SNum)]) 
+    output_QI[28].append([(q-s[17])/P[27] for q,s in zip(output_QI[20][n],SNum)]) 
+    output_QI[29].append([(q-s[20])/P[3] for q,s in zip(output_QI[18][n],SNum)]) 
+    output_QI[30].append([(q-s[21])/P[9] for q,s in zip(output_QI[24][n],SNum)]) 
+    output_QI[31].append([(q-s[22])/P[6] for q,s in zip(output_QI[24][n],SNum)]) 
+    output_QI[32].append([(q-s[23])/P[15] for q,s in zip(output_QI[19][n],SNum)]) 
+    output_QI[33].append([(q-s[25])/P[24] for q,s in zip(output_QI[20][n],SNum)]) 
+    output_QI[34].append([(q-s[24])/P[21] for q,s in zip(output_QI[20][n],SNum)]) 
+    output_QI[35].append([(q-s[29])/P[39] for q,s in zip(output_QI[21][n],SNum)]) 
+    output_QI[36].append([(q-s[30])/P[42] for q,s in zip(output_QI[23][n],SNum)]) 
+    output_QI[37].append([(q-s[31])/P[45] for q,s in zip(output_QI[23][n],SNum)]) 
+    output_QI[38].append([(q-s[26])/P[30] for q,s in zip(output_QI[21][n],SNum)]) 
+    output_QI[39].append([(q-s[27])/P[33] for q,s in zip(output_QI[22][n],SNum)]) 
+    output_QI[40].append([(q-s[28])/P[36] for q,s in zip(output_QI[22][n],SNum)]) 
+    output_QI[41].append(Q_in) 
+    output_QI[42].append([s[9] for s in SNum]) 
+    output_QI[43].append([s[12] for s in SNum]) 
+    output_QI[44].append([s[15] for s in SNum]) 
+    output_QI[45].append([s[14] for s in SNum]) 
+    output_QI[46].append([s[16] for s in SNum]) 
+    output_QI[47].append([s[29] for s in SNum]) 
+    output_QI[48].append([s[26] for s in SNum]) 
+    output_QI[49].append([s[17] for s in SNum]) 
+    output_QI[50].append([s[18] for s in SNum]) 
+    output_QI[51].append([s[19] for s in SNum]) 
+    output_QI[52].append([s[20] for s in SNum]) 
+    output_QI[53].append([s[21] for s in SNum]) 
+    output_QI[54].append([s[23] for s in SNum]) 
+    output_QI[55].append([s[25] for s in SNum]) 
+    output_QI[56].append([s[24] for s in SNum])
+    output_QI[57].append([s[29] for s in SNum])
+    output_QI[58].append([s[30] for s in SNum])
+    output_QI[59].append([s[31] for s in SNum])
+    output_QI[60].append([s[26] for s in SNum])
+    output_QI[61].append([s[27] for s in SNum])
+    output_QI[62].append([s[28] for s in SNum])
+    output_QI[63].append([s[22] for s in SNum])
+
+    output_t.append([t + Tc*n for t in tNum[0::STEPSIZE]])
+
+  # flatten the arrays
+  i = 0
+  for q in output_QI:
+    output_QI[i] = [qq for y in q for qq in y]
+    i += 1
+  output_t  = [t for y in output_t for t in y]
+  return output_t,output_QI
+
+# Equation for input flow waveform
+def Q(t,flow):
+  while(t > flow[0,-1]):
+    t = t - flow[0,-1]
+
+  f = interp1d(flow[0,:],flow[1,:],'slinear')
+  Qval = np.float(f(t))
+  return Qval
+
+# Equation for input flow waveform
+def calcWSS(A,flow,QI):
+  nu  = QI[29]  # blood viscocity
+  r = np.sqrt(A/np.pi)
+
+  wss = np.empty(len(flow))
+  i = 0
+  for f in flow:
+    wss_new = (4*nu*f)/(np.pi * (r**3))
+    wss[i] = wss_new
+    i = i + 1
+  return wss
+
+
+# System of ODEs for LPN
+def dSdt(t,S,P,QI,flow):    
+
+  # Assign Local Variables 
+  # State variable vector S
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  Q_L4  = S[0]
+  P_L3  = S[27]
+  P_L8  = S[32]
+  
+  # Param variable vector P
+  R_L2  = P[33]
+  C_L2  = P[34]
+  L_L2  = P[35]
+  
+  # QoI variable vector QI
+  R_L3  = QI[8]
+  
+  # Q_in at time t
+  Q_in = Q(t,flow)
+
+  # ODEs
+  dS = []
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  dS.append((P_L3-R_L3*Q_L4-P_L8)/L_L2)
+  
+  return dS
+
+
+# Compliance in model
+def computeCompliance(length,Area,Eh):
+  radius = np.sqrt(Area/np.pi)
+  return ((radius**3)/(2.0*Eh))*length*3.0*np.pi
+
+
+# Get deterministic parameters for 0D model
+def getDPVec(QI):
+  # Parameter values - uncertain
+  E   = QI[27]*10  # Young's modulus
+  rho = QI[28]  # blood density
+  nu  = QI[29]  # blood viscocity
+  
+  # Lengths in model
+  lA1  = 1.1 
+  lA2  = 1.1  
+  lA3  = 1.1  
+  lA4  = 1.1  
+  lCT1 = 1.1  
+  lCT2 = 1.1  
+  lCB  = 1.1  
+  lS   = 1.1  
+  lRR  = 1.1  
+  lLR  = 1.1  
+  lRI1 = 1.1  
+  lRI2 = 1.1  
+  lRII = 1.1  
+  lLI1 = 1.1  
+  lLI2 = 1.1  
+  lLII = 1.1  
+
+  # Areas in model
+  AA1  = 0.6
+  AA2  = 0.6
+  AA3  = 0.6
+  AA4  = 0.6
+  ACT1 = 0.6
+  ACT2 = 0.6
+  ACB  = 0.6
+  AS   = 0.6
+  ARR  = 0.6
+  ALR  = 0.6
+  ARI1 = 0.6
+  ARI2 = 0.6
+  ARII = 0.6
+  ALI1 = 0.6
+  ALI2 = 0.6
+  ALII = 0.6
+
+  # Young's modulus*thickness - Linear consititutive equation
+  EhFact = 1.0
+  EhA1 = E*np.sqrt(AA1/np.pi)/10*EhFact
+  EhA2 = E*np.sqrt(AA2/np.pi)/10*EhFact
+  EhA3 = E*np.sqrt(AA3/np.pi)/10*EhFact 
+  EhA4 = E*np.sqrt(AA4/np.pi)/10*EhFact
+
+  EhCT1 = E*np.sqrt(ACT1/np.pi)/10*EhFact 
+  EhCT2 = E*np.sqrt(ACT2/np.pi)/10*EhFact
+  EhCB  = E*np.sqrt(ACB/np.pi)/10*EhFact 
+
+  EhS  = E*np.sqrt(AS/np.pi)/10*EhFact
+  EhRR = E*np.sqrt(ARR/np.pi)/10*EhFact 
+  EhLR = E*np.sqrt(ALR/np.pi)/10*EhFact
+
+  EhRI1 = E*np.sqrt(ARI1/np.pi)/10*EhFact 
+  EhRI2 = E*np.sqrt(ARI2/np.pi)/10*EhFact
+  EhRII = E*np.sqrt(ARII/np.pi)/10*EhFact 
+
+  EhLI1 = E*np.sqrt(ALI1/np.pi)/10*EhFact 
+  EhLI2 = E*np.sqrt(ALI2/np.pi)/10*EhFact
+  EhLII = E*np.sqrt(ALII/np.pi)/10*EhFact 
+
+    
+  # Parameter values - circut elements
+  cFact = 1.0
+  lFact = 1.0
+  rFact = 1.0
+  
+  R_A1 = (8*lA1*nu) / (np.pi*np.sqrt(AA1/np.pi)**4)*rFact
+  C_A1 = computeCompliance(lA1,AA1,EhA1)
+  L_A1 = ((lA1*rho) / (AA1))*lFact
+  
+  R_C1 = (8*lCT1*nu) / (np.pi*np.sqrt(ACT1/np.pi)**4)*rFact
+  C_C1 = computeCompliance(lCT1,lCT1,EhCT1)
+  L_C1 = ((lCT1*rho) / (ACT1))*lFact
+  
+  R_C4 = (8*lCT2*nu) / (np.pi*np.sqrt(ACT2/np.pi)**4)*rFact
+  C_C3 = computeCompliance(lCT2,ACT2,EhCT2)
+  L_C3 = ((lCT2*rho) / (ACT2))*lFact
+  
+  R_C2 = (8*lCB*nu) / (np.pi*np.sqrt(ACB/np.pi)**4)*rFact
+  C_C2 = computeCompliance(lCB,ACB,EhCB)
+  L_C2 = ((lCB*rho) / (ACB))*lFact
+  
+  R_A2 = (8*lA2*nu) / (np.pi*np.sqrt(AA2/np.pi)**4)*rFact
+  C_A2 = computeCompliance(lA2,AA2,EhA2)
+  L_A2 = ((lA2*rho) / (AA2))*lFact
+  
+  R_S1 = (8*lS*nu) / (np.pi*np.sqrt(AS/np.pi)**4)*rFact
+  C_S1 = computeCompliance(lS,AS,EhS)
+  L_S1 = ((lS*rho) / (AS))*lFact
+  
+  R_A3 = (8*lA3*nu) / (np.pi*np.sqrt(AA3/np.pi)**4)*rFact
+  C_A3 = computeCompliance(lA3,AA3,EhA3)
+  L_A3 = ((lA3*rho) / (AA3))*lFact
+  
+  R_RR1 = (8*lRR*nu) / (np.pi*np.sqrt(ARR/np.pi)**4)*rFact
+  C_RR1 = computeCompliance(lRR,ARR,EhRR)
+  L_RR1 = ((lRR*rho) / (ARR))*lFact
+  
+  R_LR1 = (8*lLR*nu) / (np.pi*np.sqrt(ALR/np.pi)**4)*rFact
+  C_LR1 = computeCompliance(lLR,ALR,EhLR)
+  L_LR1 = ((lLR*rho) / (ALR))*lFact
+  
+  R_A4 = (8*lA4*nu) / (np.pi*np.sqrt(AA4/np.pi)**4)*rFact
+  C_A4 = computeCompliance(lA4,AA4,EhA4)
+  L_A4 = ((lA4*rho) / (AA4))*lFact
+  
+  R_R1 = (8*lRI1*nu) / (np.pi*np.sqrt(ARI1/np.pi)**4)*rFact
+  C_R1 = computeCompliance(lRI1,ARI1,EhRI1)
+  L_R1 = ((lRI1*rho) / (ARI1))*lFact
+  
+  R_R2 = (8*lRI2*nu) / (np.pi*np.sqrt(ARI2/np.pi)**4)*rFact
+  C_R2 = computeCompliance(lRI2,ARI2,EhRI2)
+  L_R2 = ((lRI2*rho) / (ARI2))*lFact
+  
+  R_R4 = (8*lRII*nu) / (np.pi*np.sqrt(ARII/np.pi)**4)*rFact
+  C_R3 = computeCompliance(lRII,ARII,EhRII)
+  L_R3 = ((lRII*rho) / (ARII))*lFact
+  
+  R_L1 = (8*lLI1*nu) / (np.pi*np.sqrt(ALI1/np.pi)**4)*rFact
+  C_L1 = computeCompliance(lLI1,ALI1,EhLI1)
+  L_L1 = ((lLI1*rho) / (ALI1))*lFact
+  
+  R_L2 = (8*lLI2*nu) / (np.pi*np.sqrt(ALI2/np.pi)**4)*rFact
+  C_L2 = computeCompliance(lLI2,ALI2,EhLI2)
+  L_L2 = ((lLI2*rho) / (ALI2))*lFact
+  
+  R_L4 = (8*lLII*nu) / (np.pi*np.sqrt(ALII/np.pi)**4)*rFact
+  C_L3 = computeCompliance(lLII,ALII,EhLII)
+  L_L3 = ((lLII*rho) / (ALII))*lFact
+  
+  # Parameter vector
+  P = [R_A1,C_A1,L_A1,R_C1,C_C1,L_C1,R_C2,C_C2,L_C2,R_C4,C_C3,L_C3, \
+       R_A2,C_A2,L_A2,R_S1,C_S1,L_S1,R_A3,C_A3,L_A3,R_LR1,C_LR1,L_LR1, \
+       R_RR1,C_RR1,L_RR1,R_A4,C_A4,L_A4,R_L1,C_L1,L_L1,R_L2,C_L2,L_L2, \
+       R_L4,C_L3,L_L3,R_R1,C_R1,L_R1,R_R2,C_R2,L_R2,R_R4,C_R3,L_R3]
+
+  return P

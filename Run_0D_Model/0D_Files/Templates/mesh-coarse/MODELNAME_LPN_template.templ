@@ -1,0 +1,275 @@
+# Numerical solution to Lumped Parameter Network
+
+import sys
+import numpy as np
+from scipy.interpolate import interp1d
+from rk4 import rk4
+
+def LPNSolve(P,QI,cycles,nsteps):
+
+	# Get equation for input blood flow
+	flow = np.loadtxt('0DInflow.flow',delimiter=',')
+	
+	# length of cardiac cycle
+	Tc = flow[0,-1]
+
+	# Solve the LPN ODEs numerically
+	# output quantities of interest vector
+	output_QI = [[] for i in range(0,<params,0>)]
+	output_t = []
+	
+	# Analysis over 'cycle' number of cardiac cycles
+	for n in range(0,cycles):
+	
+		# initial time
+		t0 = <params,1>
+
+		SNum = []
+		tNum = []
+
+		tList = np.linspace(t0,Tc,nsteps+1)
+		for t in tList:
+
+			# Parameters
+			RA1  = P[0];
+			RA2  = P[1];
+			RA3  = P[2];
+			RA4  = P[3];
+			RC1  = P[4];
+			RC2  = P[5];
+			RC3  = QI[0] + QI[18];
+			RC4  = P[6];
+			RC5  = QI[1] + QI[19];
+			RS1  = P[7];
+			RS2  = QI[2] + QI[20];
+			RLR1 = P[8];
+			RLR2 = QI[4] + QI[22];
+			RRR1 = P[9];
+			RRR2 = QI[3] + QI[21];
+			RL1  = P[10];
+			RL2  = P[11];
+			RL3  = QI[8] + QI[26];
+			RL4  = P[12];
+			RL5  = QI[6] + QI[24];
+			RR1  = P[13];
+			RR2  = P[14];
+			RR3  = QI[7] + QI[25];
+			RR4  = P[15]; 
+			RR5  = QI[5] + QI[23];
+
+			# Flow
+			QA1 = Q(t,flow);
+
+			# System of equations
+			A = np.array([[1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+					      [1,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-RA1,0,0,-RA1,0,0,0,0,0,0,0,0,0,0,0],
+
+			# RHS
+			b = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,QA1])
+
+			# solution
+			x = np.linalg.solve(A,b)
+
+			SNum.append(x)
+			tNum.append(t)
+
+		
+		# Save values of quantities of interest
+		Q_in = []
+		for loopA in range(0,len(tNum)):
+			Q_in.append(Q(tNum[loopA],flow))
+		
+		# Flow QoIs
+		output_QI[0].append(Q_in)
+		output_QI[1].append([s[17] for s in SNum])
+		output_QI[2].append([s[18] for s in SNum])
+		output_QI[3].append([s[19] for s in SNum])
+		output_QI[4].append([s[20] for s in SNum])
+		output_QI[5].append([s[21] for s in SNum])
+		output_QI[6].append([s[22] for s in SNum])
+		output_QI[7].append([s[23] for s in SNum])
+		output_QI[8].append([s[24] for s in SNum])
+		output_QI[9].append([s[25] for s in SNum])
+		output_QI[10].append([s[26] for s in SNum])
+		output_QI[11].append([s[27] for s in SNum])
+		output_QI[12].append([s[28] for s in SNum])
+		output_QI[13].append([s[29] for s in SNum])
+		output_QI[14].append([s[30] for s in SNum])
+		output_QI[15].append([s[31] for s in SNum])
+
+		# Pressure QoIs
+		output_QI[16].append([s[0] for s in SNum])
+		output_QI[17].append([s[1] for s in SNum])
+		output_QI[18].append([s[2] for s in SNum])
+		output_QI[19].append([s[3] for s in SNum])
+		output_QI[20].append([s[4] for s in SNum])
+		output_QI[21].append([s[5] for s in SNum])
+		output_QI[22].append([s[6] for s in SNum])
+		output_QI[23].append([s[7] for s in SNum])
+		output_QI[24].append([s[8] for s in SNum])
+		output_QI[25].append([s[9] for s in SNum])
+		output_QI[26].append([s[10] for s in SNum])
+		output_QI[27].append([s[11] for s in SNum])
+		output_QI[28].append([s[12] for s in SNum])
+		output_QI[29].append([s[13] for s in SNum])
+		output_QI[30].append([s[14] for s in SNum])
+		output_QI[31].append([s[15] for s in SNum])
+		output_QI[32].append([s[16] for s in SNum])
+
+		output_t.append([t + Tc*n for t in tNum])
+
+	# flatten the arrays
+	i = 0
+	for q in output_QI:
+		output_QI[i] = [qq for y in q for qq in y]
+		i += 1
+	
+	output_t  = [t for y in output_t for t in y]
+	return output_t,output_QI
+
+# Equation for input flow waveform
+def Q(t,flow):
+	while(t > flow[0,-1]):
+		t = t - flow[0,-1]
+
+	f = interp1d(flow[0,:],flow[1,:],'slinear')
+	Qval = np.float(f(t))
+	return Qval
+
+# Equation for input flow waveform
+def calcWSS(A,flow,QI):
+	nu  = QI[29]  # blood viscocity
+	r = np.sqrt(A/np.pi)
+
+	wss = np.empty(len(flow))
+	i = 0
+	for f in flow:
+		wss_new = (4*nu*f)/(np.pi * (r**3))
+		wss[i] = wss_new
+		i = i + 1
+	return wss
+
+
+# Get deterministic parameters for 0D model
+def getDPVec(QI):
+
+	# Parameter values - uncertain
+	E 	= QI[27]*10  # Young's modulus
+	rho = QI[28]     # blood density
+	nu  = QI[29]     # blood viscocity
+	
+	# Lengths in model
+	lA1  = 1.1 
+	lA2  = 1.1  
+	lA3  = 1.1  
+	lA4  = 1.1  
+	lCT1 = 1.1  
+	lCT2 = 1.1  
+	lCB  = 1.1  
+	lS   = 1.1  
+	lRR  = 1.1  
+	lLR  = 1.1  
+	lRI1 = 1.1  
+	lRI2 = 1.1  
+	lRII = 1.1  
+	lLI1 = 1.1  
+	lLI2 = 1.1  
+	lLII = 1.1  
+
+	# Areas in model
+	AA1  = 0.6
+	AA2  = 0.6
+	AA3  = 0.6
+	AA4  = 0.6
+	ACT1 = 0.6
+	ACT2 = 0.6
+	ACB  = 0.6
+	AS   = 0.6
+	ARR  = 0.6
+	ALR  = 0.6
+	ARI1 = 0.6
+	ARI2 = 0.6
+	ARII = 0.6
+	ALI1 = 0.6
+	ALI2 = 0.6
+	ALII = 0.6
+
+
+	# Young's modulus*thickness of vessel - Linear consititutive equation
+	EhFact = 1.0  # to put into CGS units
+	EhA1 = E*np.sqrt(AA1/np.pi)/10*EhFact
+	EhA2 = E*np.sqrt(AA2/np.pi)/10*EhFact
+	EhA3 = E*np.sqrt(AA3/np.pi)/10*EhFact 
+	EhA4 = E*np.sqrt(AA4/np.pi)/10*EhFact
+
+	EhCT1 = E*np.sqrt(ACT1/np.pi)/10*EhFact 
+	EhCT2 = E*np.sqrt(ACT2/np.pi)/10*EhFact
+	EhCB  = E*np.sqrt(ACB/np.pi)/10*EhFact 
+
+	EhS  = E*np.sqrt(AS/np.pi)/10*EhFact
+	EhRR = E*np.sqrt(ARR/np.pi)/10*EhFact 
+	EhLR = E*np.sqrt(ALR/np.pi)/10*EhFact
+
+	EhRI1 = E*np.sqrt(ARI1/np.pi)/10*EhFact 
+	EhRI2 = E*np.sqrt(ARI2/np.pi)/10*EhFact
+	EhRII = E*np.sqrt(ARII/np.pi)/10*EhFact 
+
+	EhLI1 = E*np.sqrt(ALI1/np.pi)/10*EhFact 
+	EhLI2 = E*np.sqrt(ALI2/np.pi)/10*EhFact
+	EhLII = E*np.sqrt(ALII/np.pi)/10*EhFact 
+
+    
+	# Parameter values - circut elements
+	rFact = 1.0
+	R_A1 = (8*lA1*nu) / (np.pi*np.sqrt(AA1/np.pi)**4)*rFact
+	R_C1 = (8*lCT1*nu) / (np.pi*np.sqrt(ACT1/np.pi)**4)*rFact
+	R_C2 = (8*lCT2*nu) / (np.pi*np.sqrt(ACT2/np.pi)**4)*rFact
+	R_C4 = (8*lCB*nu) / (np.pi*np.sqrt(ACB/np.pi)**4)*rFact
+	R_A2 = (8*lA2*nu) / (np.pi*np.sqrt(AA2/np.pi)**4)*rFact
+	R_S1 = (8*lS*nu) / (np.pi*np.sqrt(AS/np.pi)**4)*rFact
+	R_A3 = (8*lA3*nu) / (np.pi*np.sqrt(AA3/np.pi)**4)*rFact
+	R_RR1 = (8*lRR*nu) / (np.pi*np.sqrt(ARR/np.pi)**4)*rFact
+	R_LR1 = (8*lLR*nu) / (np.pi*np.sqrt(ALR/np.pi)**4)*rFact
+	R_A4 = (8*lA4*nu) / (np.pi*np.sqrt(AA4/np.pi)**4)*rFact
+	R_R1 = (8*lRI1*nu) / (np.pi*np.sqrt(ARI1/np.pi)**4)*rFact
+	R_R2 = (8*lRI2*nu) / (np.pi*np.sqrt(ARI2/np.pi)**4)*rFact
+	R_R4 = (8*lRII*nu) / (np.pi*np.sqrt(ARII/np.pi)**4)*rFact
+	R_L1 = (8*lLI1*nu) / (np.pi*np.sqrt(ALI1/np.pi)**4)*rFact
+	R_L2 = (8*lLI2*nu) / (np.pi*np.sqrt(ALI2/np.pi)**4)*rFact
+	R_L4 = (8*lLII*nu) / (np.pi*np.sqrt(ALII/np.pi)**4)*rFact
+	
+	# Parameter vector
+	P = [R_A1,R_A2,R_A3,R_A4,R_C1,R_C2,R_C4,R_S1,R_LR1,R_RR1,R_L1,R_L2,R_L4,R_R1,R_R2,R_R4]
+
+	return P
+

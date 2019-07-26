@@ -1,0 +1,74 @@
+mesh_and_adjncy_vtu mesh-complete/mesh-complete.mesh.vtu
+
+# Set walls to deformable and fix the edge nodes to prevent rigid body motion
+deformable_wall_vtp mesh-complete/mesh-surfaces/../walls_combined.vtp
+fix_free_edge_nodes_vtp mesh-complete/mesh-surfaces/../walls_combined.vtp
+
+prescribed_velocities_vtp mesh-complete/mesh-surfaces/cap_aorta.vtp
+
+bct_analytical_shape parabolic
+bct_period 1.0
+bct_point_number 201
+bct_fourier_mode_number 10
+bct_create mesh-complete/mesh-surfaces/cap_aorta.vtp cap_aorta.flow
+bct_write_dat bct.dat
+bct_write_vtp bct.vtp
+
+pressure_vtp mesh-complete/mesh-surfaces/cap_aorta_2.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_celiac_branch.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_celiac_trunk.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_left_internal_iliac.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_renal_left.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_renal_right.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_right_iliac.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_right_internal_iliac.vtp 0
+pressure_vtp mesh-complete/mesh-surfaces/cap_superior_mesentaric.vtp 0
+
+set_surface_id_vtp mesh-complete/mesh-complete.exterior.vtp 1
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_aorta.vtp 2
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_aorta_2.vtp 3
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_celiac_branch.vtp 4
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_celiac_trunk.vtp 5
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_left_internal_iliac.vtp 6
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_renal_left.vtp 7
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_renal_right.vtp 8
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_right_iliac.vtp 9
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_right_internal_iliac.vtp 10
+set_surface_id_vtp mesh-complete/mesh-surfaces/cap_superior_mesentaric.vtp 11
+
+# Set the thickness for each of your outlets (a good rule is to use 10% of the outlet radius)
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_aorta.vtp <params,0>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_aorta_2.vtp <params,1>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_celiac_branch.vtp	<params,2>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_celiac_trunk.vtp <params,3>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_left_internal_iliac.vtp <params,4>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_renal_left.vtp <params,5>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_renal_right.vtp <params,6>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_right_iliac.vtp <params,7>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_right_internal_iliac.vtp <params,8>
+set_surface_thickness_vtp mesh-complete/mesh-surfaces/cap_superior_mesentaric.vtp <params,9>
+solve_varwall_thickness
+
+# Apply Young's modulus to the walls of the model
+set_surface_E_vtp mesh-complete/mesh-surfaces/../walls_combined.vtp <params,10>
+solve_varwall_E
+
+# Saves a 'varwallprop.vtp' file so you can see your distribution of material
+# properties
+varwallprop_write_vtp varwallprop.vtp
+
+# Sets some generic parameters that you do not have to change (except for the pressure - comes from rigid sim)
+deformable_nu 0.5
+deformable_kcons 0.833333
+deformable_pressure 116000
+
+# Solves for displacements and writes them out to 'displacements.vtp'.
+# Ignore all FATAL ERRORS and other ominous messages of impending doom
+deformable_solve_varwall_displacements
+wall_displacements_write_vtp displacement.vtp
+
+write_geombc geombc.dat.1
+
+# Append the displacements you just solved for to the restart from your rigid
+# simulation
+append_displacements restart.0.1

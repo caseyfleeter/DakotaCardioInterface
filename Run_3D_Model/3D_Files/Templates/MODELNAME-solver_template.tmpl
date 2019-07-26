@@ -1,0 +1,73 @@
+# ***** FLUID PROPERTIES ***** #
+Density: <params,0>
+Viscosity: <params,1>
+
+# ****** SOLUTION CONTROL ****** #
+Equation of State: Incompressible
+Number of Timesteps: <params,2>
+Time Step Size: <params,3>
+
+# ***** OUTPUT CONTROL ***** #
+Number of Timesteps between Restarts: <params,4>
+
+# ****** CARDIOVASCULAR MODELING PARAMETERS ***** #
+Number of Force Surfaces: 1
+Surface ID's for Force Calculation: 1
+Force Calculation Method: Velocity Based
+Print Average Solution: True
+Print Error Indicators: False
+
+Time Varying Boundary Conditions From File: True
+
+Step Construction: 0 1 0 1 0 1 0 1 0 1 0 1 0 1
+
+Number of RCR Surfaces: 9
+List of RCR Surfaces: 3 4 5 6 7 8 9 10 11
+RCR Values From File: True
+
+# Can uncomment this and adjust parameter numbers for resistance boundary conditions
+# Number of Resistance Surfaces: 9
+# List of Resistance Surfaces: 3 4 5 6 7 8 9 10 11
+# Resistance Values: <params,5> <params,6> <params,7> <params,8> <params,9> <params,10> <params,11> <params,12> <params,13>
+
+
+Pressure Coupling: Implicit
+Number of Coupled Surfaces: 9
+
+
+Backflow Stabilization Coefficient: 0.25
+Residual Control: True
+Residual Criteria: 0.01
+Minimum Required Iterations: 3
+
+# ***** LINEAR SOLVER (SHOULD LEAVE THIS ALONE) ****** #
+svLS Type: GMRES
+Number of Krylov Vectors per GMRES Sweep: 100
+Number of Solves per Left-hand-side Formation: 1
+Tolerance on Momentum Equations: 0.01
+Tolerance on Continuity Equations: 0.01
+Tolerance on svLS NS Solver: 0.01
+Maximum Number of Iterations for svLS NS Solver: 10
+Maximum Number of Iterations for svLS Momentum Loop: 2
+Maximum Number of Iterations for svLS Continuity Loop: 40
+
+
+# ***** DISCRETIZATION CONTROL ***** #
+Time Integration Rule: Second Order
+Time Integration Rho Infinity: 0.2
+Flow Advection Form: Convective
+Quadrature Rule on Interior: 2
+Quadrature Rule on Boundary: 3
+
+# ------------------------------------------------------------------------------
+# Everything above this line should be the same as your rigid. Everything below
+# this line is just copy/pasted into your solver.inp for your FSI simulation
+
+# ***** DEFORMABLE SIMULATION SETTINGS ***** #
+Deformable Wall: True
+Variable Wall Thickness and Young Mod: True
+Density of Vessel Wall: 1.0
+Number of Wall Properties per Node: 10
+Poisson Ratio of Vessel Wall: 0.500000
+Shear Constant of Vessel Wall: 0.833333
+Wall Mass Matrix for LHS: True

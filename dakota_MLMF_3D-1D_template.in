@@ -1,0 +1,86 @@
+environment
+  output_precision = 16
+  tabular_graphics_data
+    tabular_graphics_file = 'dakota_MLMF_Tabulated.dat'
+  method_pointer = 'MLCVMC'
+
+method,
+	id_method = 'MLCVMC'
+	model_pointer = 'HIERARCH'
+  multilevel_sampling				
+	  pilot_samples = 10  # coarse medium fine
+    seed = 1234
+	  max_iterations = 0
+	  convergence_tolerance = .5			
+	output debug
+
+model,
+	id_model = 'HIERARCH'
+	variables_pointer = 'VARS'
+	surrogate hierarchical
+	  ordered_model_fidelities = 'oneD' 'threeD'
+
+model,
+	id_model = 'oneD'
+	variables_pointer = 'VARS'
+	interface_pointer = 'LF'
+	responses_pointer = 'ID_R'
+	simulation
+	  solution_level_control = '-MESHLEVEL'
+	  solution_level_cost = 50 700 200    # coarse fine medium in seconds
+   
+model,
+	id_model = 'threeD'
+	variables_pointer = 'VARS'
+	interface_pointer = 'HF'
+	responses_pointer = 'ID_R'
+	simulation
+	  solution_level_control = '-MESHLEVEL'
+	  solution_level_cost = 350000 3100000 820000    # coarse fine medium in CPU seconds
+
+variables,
+	id_variables = 'VARS'
+	uniform_uncertain = 3
+    	  lower_bounds      = 1.0000e+03   5.0000e+05   5.8333e+01
+    	  upper_bounds      = 1.9000e+03   9.2500e+05   1.0833e+02
+    	  descriptors       = '-BC_TOTAL_R' '-YOUNGSMOD' '-INLETWAVEFORMTOTALFLOW'
+	discrete_state_set
+	  string = 1
+	    num_set_values = 3
+	    set_values = '-coarse' '-fine' '-medium'
+	    initial_state = '-coarse'
+	    descriptors '-MESHLEVEL'
+
+interface
+  id_interface = 'LF'
+       analysis_driver = 'run1D.sh'
+        fork
+          work_directory named WORKDIR_LF_REPLACE
+          copy_files COPY_LF_REPLACE
+          directory_tag 
+          parameters_file = 'Inputs/MODELNAME_StochasticVector_DAKOTA.dat'
+          allow_existing_results
+          results_file    = 'Outputs/1DOutputVector.dat'
+          asynchronous
+          evaluation_concurrency = 50
+
+interface
+  id_interface = 'HF'
+       analysis_driver = 'run3D.sh'
+        fork
+          work_directory named WORKDIR_HF_REPLACE
+          copy_files COPY_HF_REPLACE
+          directory_tag 
+          parameters_file = 'Inputs/MODELNAME_StochasticVector_DAKOTA.dat'
+          allow_existing_results
+          results_file    = 'Outputs/3DOutputVector.dat'
+          asynchronous
+          evaluation_concurrency = 10
+
+responses
+  id_responses = 'ID_R'
+  response_functions = 10
+  no_gradients
+  no_hessians
+  response_descriptors = 'aorta_2_cap_flow' 'celiac_branch_cap_flow' 'celiac_trunk_cap_flow' 'left_internal_iliac_cap_flow' 'renal_left_cap_flow' 'aorta_cap_pressure' 'aorta_2_cap_pressure' 'celiac_branch_cap_pressure' 'celiac_trunk_cap_pressure' 'left_internal_iliac_cap_pressure' 'renal_left_cap_pressure'
+

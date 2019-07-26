@@ -1,0 +1,104 @@
+\documentclass{UQDoc}
+
+% PACKAGES ---------------------------------------------------------------
+\usepackage{amsfonts,amsmath,graphicx,subfigure}
+% ADD YOUR OWN PACKAGES HERE ---------------------------------------------
+%\usepackage{someotherpackage}
+\usepackage{soul,color}
+
+% DEFINITIONS ------------------------------------------------------------
+% ADD YOUR OWN DEFINITIONS HERE ------------------------------------------
+% BE SURE TO PREFACE LABEL WITH YOUR OWN INITIALS (SSS in this example) --
+\newcommand{\CMFnorm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\CMFabs}[1]{\left\vert#1\right\vert}
+
+% This controls the table-of-contents entry in the proceedings. Edit it
+% to include your article title followed by the authors' names, as shown.
+\addcontentsline{toc}{chapter}{Documentation for DAKOTA Interface with Three Cardiovascular Model Solvers\\
+{\em C.M.\ Fleeter}}
+
+\pagestyle{myheadings}
+
+\thispagestyle{plain}
+
+% This gives the running head. Usually you list a shortened version of
+% your article title (unless it's already very short) along with
+% the author's names, as shown.
+\markboth{Documentation for DAKOTA Interface}{C.M.\ Fleeter}
+
+% Put your article title in here
+\title{Documentation for DAKOTA Interface with Three Cardiovascular Model Solvers}
+
+% List each author, their affiliation, and their e-mail address, as shown.
+\author{Casey M.\ Fleeter\thanks{Marsden Lab, ICME, Stanford University, cfleeter@stanford.edu}}
+
+\begin{document}
+
+\maketitle
+\noindent\today \\
+
+% % Include your abstract here.
+% \begin{abstract}
+% \hl{need abstract}
+% \end{abstract}
+
+\tableofcontents
+
+
+\section{Introduction} \label{CMF:sec:intro}
+Sandia National Lab's DAKOTA toolkit enables the automation of multi-level and multi-fidelity uncertainty quantification. DAKOTA has an extensive functionality.
+
+At this time, geometry uncertainties are not taken into consideration. Therefore, the uncertainity quantification techniques at this time will not include uncertainties in cross-sectional areas, vessel lengths, branch angles, or anything else related to the model geometry. The addition of these uncertainities will require significant changes to the DAKOTA interface and will be added in the future.
+
+The current pipeline can handle varying spatial and temporal resolutions and uncertainties relating to material properites, inlet and outlet boundary conditions (types and values)
+
+\section{Main Folder} \label{CMF:sec:Main}
+\subsection{Provided Files (do not modify)}
+
+\subsection{Required Files (modify)}
+
+\subsection{Instructions}
+
+
+\section{3D Solver} \label{CMF:sec:3D}
+\subsection{Provided Files (do not modify)}
+
+\subsection{Required Files (modify)}
+
+\subsection{Instructions}
+
+
+\section{1D Solver} \label{CMF:sec:1D}
+\subsection{Provided Files (do not modify)}
+
+\subsection{Required Files (modify)}
+\begin{itemize}
+	\item Defaults1D.dat: file containing default data for all parameters in the 1D template file. This is a commma-seperated value file with each line $$\text{[data],\quad TYPE,\quad -flag}$$ 
+	The data can be a number, string, or list. TYPE denotes the data type (allowed values are INTEGER, FLOAT, STRING, or LIST). The flags are a brief description of the parameter. 
+\end{itemize}
+
+\subsection{Instructions}
+
+\subsection{Uncertianties for the future}
+Not all possible uncertainities are accounted for at the moment. In the future, the following uncertainites could be added:
+\begin{itemize}
+	\item Geometry (node positions, segment areas, segment lengths, bifurcations, branch angles)
+	\item Losses in branches (currently set to NONE for all segments)
+	\item Additional material models (currently only linear and Olfusen are provided. Also, the linear material model has a hardcoded Young's modulus in the 1D solver, which could be changed)
+\end{itemize}
+
+
+
+\section{0D Solver} \label{CMF:sec:0D}
+\subsection{Provided Files (do not modify)}
+
+\subsection{Required Files (modify)}
+
+\subsection{Instructions}
+
+
+% \bibliographystyle{siam}
+% % Edit the line below to be your first and last names.
+% \bibliography{CaseyFleeter}
+
+\end{document}
