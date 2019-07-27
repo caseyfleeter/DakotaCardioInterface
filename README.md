@@ -1,3 +1,5 @@
+Please cite this work with [![DOI](https://zenodo.org/badge/170943673.svg)](https://zenodo.org/badge/latestdoi/170943673)
+
 # Documentation for Dakota Git Repo	
 
 ## General Notes
