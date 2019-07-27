@@ -1,5 +1,3 @@
-Please cite this work with [![DOI](https://zenodo.org/badge/170943673.svg)](https://zenodo.org/badge/latestdoi/170943673)
-
 # Documentation for Dakota Git Repo	
 
 ## General Notes
@@ -356,3 +354,6 @@ Below are details for how to specifically edit each provided template file to ru
 ### 3DFiles/Defaults3DSvpre_template.dat
 * Adjust this file to match the `MODELNAME.svpre` file for your model.
 * After editing the file, remove the `_template` suffix from the filename
+
+- - - - 
+Please cite this work with [![DOI](https://zenodo.org/badge/170943673.svg)](https://zenodo.org/badge/latestdoi/170943673)
