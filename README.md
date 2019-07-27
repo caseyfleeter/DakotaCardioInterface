@@ -1,4 +1,4 @@
-# Documentation for Dakota Git Repo	
+# Documentation for Dakota-Simvascular Cardiovascular Interface	
 
 ## General Notes
 This project contains a framework for the Dakota-Simvascular coupled uncertainty quantification workflow. This project is designed to be customized to fit specific user desires. The framework couples Dakota to the Simvascular cardiovascular flow solvers, and can be adapted to utilize any of Dakota’s many features.
